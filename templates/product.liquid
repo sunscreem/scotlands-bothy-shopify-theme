@@ -24,16 +24,16 @@
   <meta itemprop="image" content="http:{{ product.featured_image.src | product_img_url: 'grande' | remove: 'http:' | remove: 'https:' }}" />
   {% for variant in product.variants %}
   <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-    <meta itemprop="price" content="{{ variant.price | times:1.20 | money_without_currency  | strip_html }}" />
+    <meta itemprop="price" content="{{ variant.price  | money_without_currency  | strip_html }}" />
     <meta itemprop="priceCurrency" content="{{ shop.currency }}" />
     {% if product.available %}
     <link itemprop="availability" href="http://schema.org/InStock" />
     {% else %}
     <link itemprop="availability" href="http://schema.org/OutOfStock" />
-    {% endif %}  
+    {% endif %}
   </div>
   {% endfor %}
-  
+
     <h1>{{ product.title }}</h1>
 	<div class="productimages">
       {% if product.images.size > 1 and show_thumbs_above_image %}
@@ -45,7 +45,7 @@
         </ul>
       </div><!-- .thumbs -->
       {% endif %}
-      
+
       {% assign featured_image = product.selected_or_first_available_variant.featured_image | default: product.featured_image %}
       <div class="main">
         <a href="{{ featured_image | img_url: 'master' }}">
@@ -55,7 +55,7 @@
           <img class="mainimg" src="{{ featured_image | img_url: 'grande' }}" alt="{{ featured_image.alt | escape }}" />
         </a>
       </div><!-- .main -->
-      
+
       {% if product.images.size > 1 and show_thumbs_above_image != true %}
       <div class="thumbs clearfix">
         <ul>
@@ -65,7 +65,7 @@
         </ul>
       </div><!-- .thumbs -->
       {% endif %}
-      
+
       <script type="text/javascript">
         // <![CDATA[
         $(function(){
@@ -83,7 +83,7 @@
             if($mainconta.find('.mainimg').attr('src') != $atag.data('hrefgrande')) {
               $maincont.height($maincont.height());
               $maincont.addClass('loading');
-              $mainconta.find('.mainimg').removeClass('mainimg').fadeOut(200, function(){ 
+              $mainconta.find('.mainimg').removeClass('mainimg').fadeOut(200, function(){
                 $(this).remove();
                 $('<img class="mainimg">').bind('load', function(){
                   $imgOnPage = $(this).appendTo($mainconta);
@@ -104,7 +104,7 @@
         // ]]>
       </script>
 	</div><!-- .productimages -->
-  
+
 	<div class="productdetail">
 		{% if product.available %}
 		<form action="/cart/add" method="post" id="product-form">
@@ -112,7 +112,7 @@
                 {% if product.variants.size == 1 %}
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" />
                     <div id="price-field">
-                        {{ product.selected_or_first_available_variant.price | times:1.20 | money }}
+                        {{ product.selected_or_first_available_variant.price  | money }}
                         {% if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price %}
                             <span class="was-price">
                                 ({{ 'products.general.was' | t }} {{ product.selected_or_first_available_variant.compare_at_price |  money }})
@@ -126,9 +126,9 @@
                                 <li>
                                     <input type="radio" id="var{{ variant.id }}" name="id" value="{{ variant.id }}"{% if forloop.index == 1 %} checked{% endif %}>
                                     {% if variant.compare_at_price > variant.price %}
-                                    <label for="var{{ variant.id }}">{{ variant.title }} - {{ variant.price | times:1.20 | money }} <span class="was">({{ variant.compare_at_price | times:1.20 | money }})</span></label>
+                                    <label for="var{{ variant.id }}">{{ variant.title }} - {{ variant.price  | money }} <span class="was">({{ variant.compare_at_price  | money }})</span></label>
                                     {% else %}
-                                    <label for="var{{ variant.id }}">{{ variant.title }} - {{ variant.price | times:1.20 | money }}</label>
+                                    <label for="var{{ variant.id }}">{{ variant.title }} - {{ variant.price  | money }}</label>
                                     {% endif %}
                                 </li>
             				{% endfor %}
@@ -136,7 +136,7 @@
                     {% else %}
         				<select id="product-select" name='id'>
             				{% for variant in product.variants %}
-            				    <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | times:1.20 | money }}</option>
+            				    <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} value="{{ variant.id }}">{{ variant.title }} - {{ variant.price  | money }}</option>
             				{% endfor %}
         				</select>
     				    <div id="price-field"></div>
@@ -145,7 +145,7 @@
                                 if (variant && variant.available == true) {
                                     // selected a valid variant
                                     $('#content .productdetail .buttoncont').removeClass('disabled').find('#purchase').removeAttr('disabled'); // remove unavailable class from add-to-cart button, and re-enable button
-                                    var newHtml = Shopify.formatMoney((variant.price*1.2), {{ shop.money | json }});
+                                    var newHtml = Shopify.formatMoney(variant.price), {{ shop.money | json }});
                                     if(variant.compare_at_price > variant.price) {
                                         newHtml += '<span class="was-price"> ' + {{ 'products.general.was' | t | json }} + Shopify.formatMoney(variant.compare_at_price, {{ shop.money | json }}) + '</span>';
                                     }
@@ -156,7 +156,7 @@
                                   var message = variant ? {{ 'products.variant.out_of_stock' | t | json }} : {{ 'products.variant.non_existent' | t | json }};
                                   $('#price-field').text(message); // update price-field message
                                 }
-                              
+
                                 if (variant && variant.featured_image) {
                                   var originalImage = $(".productimages .main img.mainimg");
                                   var newImage = variant.featured_image;
@@ -166,11 +166,11 @@
                                     $(element).attr('src', newImageSizedSrc);
                                   });
                                 }
-                              
+
                             };
                             $(function() {
                               var optionSelectors = new Shopify.OptionSelectors("product-select", { product: {{ product | json }}, onVariantSelected: selectCallback, enableHistoryState: true });
-                            });  
+                            });
                         </script>
                     {% endif %}
                 {% endif %}
@@ -199,7 +199,7 @@
 			    <input type="submit" name="add" value="{{ 'products.general.add_to_cart' | t }}" id="purchase" class="addtocart" />
             </div>
 		</form>
-        
+
 		{% else %}
 		    <p class="unavailable">{{ 'products.general.product_unavailable' | t }}</p>
 		{% endif %}
@@ -208,7 +208,7 @@
     <div class="product_delivery">
     <p><strong>Delivery Information</strong><br>&nbsp;</p>
     <p>Orders are usually dispatched the same day* (Monday to Friday, if ordered before 4pm.)<br>&nbsp;</p>
-    <p>UK Delivery (typically 2-3 days) from £3.90</p> 
+    <p>UK Delivery (typically 2-3 days) from £3.90</p>
     <p>International Delivery (typically 5-7 days) from £12.00<br>&nbsp;</p>
     <p>The delivery cost varies depending on your location and the weight of your order. Once you have placed your item(s) in the basket, please proceed to the checkout where the delivery costs will be displayed.<br>&nbsp;</p>
     <p>* Please allow 2 to 3 days production time on custom made/bespoke orders.<br>&nbsp;</p>
@@ -244,7 +244,7 @@
             {% endfor %}
             {% endpaginate %}
         {% endif %}
-        
+
         {% if settings.rel_product_method == 'type' %}
             <!-- Products of same type -->
             {% assign count = 0 %}

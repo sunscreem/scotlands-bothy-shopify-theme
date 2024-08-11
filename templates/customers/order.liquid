@@ -60,7 +60,7 @@
     {% for line_item in order.line_items %}
     <tr id="{{ line_item.id }}" class="{% cycle 'odd', 'even' %}">
       <td class="product">
-        {{ line_item.title | link_to: line_item.product.url }} 
+        {{ line_item.title | link_to: line_item.product.url }}
         {% if line_item.fulfillment %}
           <div class="note">
             {% assign date = line_item.fulfillment.created_at | date: format: 'month_date_year' %}
@@ -72,42 +72,42 @@
         {% endif %}
       </td>
       <td class="sku note">{{ line_item.sku }}</td>
-      <td class="money">{{ line_item.price | times:1.20 | money }}</td>
+      <td class="money">{{ line_item.price  | money }}</td>
       <td class="quantity cente">{{ line_item.quantity }}</td>
-      <td class="total money">{{ line_item.quantity | times: line_item.price | times:1.20 | money }}</td>
+      <td class="total money">{{ line_item.quantity | times: line_item.price  | money }}</td>
     </tr>
     {% endfor %}
-  </tbody>  
+  </tbody>
   <tfoot>
     <tr class="order_summary note">
       <td class="label" colspan="4">{{ 'customer.order.subtotal' | t }}:</td>
-      <td class="total money">{{ order.subtotal_price | times:1.20 | money }}</td>
-    </tr>   
+      <td class="total money">{{ order.subtotal_price  | money }}</td>
+    </tr>
 
     {% for discount in order.discounts %}
       <tr class="order_summary discount">
         <td class="label" colspan="4">{{ discount.code }} {{ 'customer.order.discount' | t }}:</td>
-        <td class="total money">{{ discount.savings | times:1.20 | money }}</td>
+        <td class="total money">{{ discount.savings  | money }}</td>
       </tr>
     {% endfor %}
 
     {% for shipping_method in order.shipping_methods %}
     <tr class="order_summary note">
       <td class="label" colspan="4">{{ 'customer.order.shipping' | t }} ({{ shipping_method.title }}):</td>
-      <td class="total money">{{ shipping_method.price | times:1.20 | money }}</td>
+      <td class="total money">{{ shipping_method.price  | money }}</td>
     </tr>
     {% endfor %}
-    
+
     {% for tax_line in order.tax_lines %}
       <tr class="order_summary note">
         <td class="label" colspan="4">{{ 'customer.order.tax' | t }} ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%):</td>
-        <td class="total money">{{ tax_line.price | times:1.20 | money }}</td>
+        <td class="total money">{{ tax_line.price  | money }}</td>
       </tr>
-    {% endfor %}    
-            
+    {% endfor %}
+
     <tr class="order_summary order_total">
       <td class="label" colspan="4">{{ 'customer.order.total' | t }}:</td>
-      <td class="total money">{{ order.total_price | times:1.20 | money }} {{ order.currency }}</td>
-    </tr>   
-  </tfoot>  
+      <td class="total money">{{ order.total_price  | money }} {{ order.currency }}</td>
+    </tr>
+  </tfoot>
 </table>

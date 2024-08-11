@@ -40,7 +40,7 @@
         					<p><span class="title"><a href="{{ item.url }}">{{ item.title }}</a></span>
         				    <span class="desc">{{ item.product.description | strip_html | truncate: 120 }}</span></p>
             			</div>
-                        <div class="price"><span class="amount">{{ item.price | times:1.20 | money }}{% if item.variant.compare_at_price > item.price %}<br /><del>{{ item.variant.compare_at_price | times:1.20 | money }}</del>{% endif %}</span></div>
+                        <div class="price"><span class="amount">{{ item.price  | money }}{% if item.variant.compare_at_price > item.price %}<br /><del>{{ item.variant.compare_at_price  | money }}</del>{% endif %}</span></div>
             			<div class="qty">
                           <label for="updates_{{ item.variant.id }}">{{ 'cart.general.title' | t }}:</label>
                           <input type="text" size="4" name="updates[{{item.variant.id}}]" id="updates_{{ item.variant.id }}" value="{{ item.quantity }}" onfocus="this.select();"/>
@@ -48,14 +48,14 @@
             			<div class="delete">
                           <a onclick="return confirm('{{ 'cart.general.delete_confirm' | t }}')" href="/cart/change?line={{ forloop.index }}&quantity=0">{{ 'cart.general.remove' | t }}</a>
                       	</div>
-                        <div class="total">{{ item.line_price | times:1.20 | money }}</div>
+                        <div class="total">{{ item.line_price  | money }}</div>
             		</div>
                 </li>
                 {% endfor %}
             </ul>
         </div>
     	<div class="subtotal">
-    		<div><span class="total">{{ 'cart.general.total' | t }}</span><span class="amount">{{ cart.total_price | times:1.20 | money }}</span></div>
+    		<div><span class="total">{{ 'cart.general.total' | t }}</span><span class="amount">{{ cart.total_price  | money }}</span></div>
             <span class="subtext">Excluding Delivery</span>
             <div class="buttons">
               {% if settings.cart_note_enabled %}
@@ -66,7 +66,7 @@
               {% endif %}
               <div class="buttoncont"><input type="submit" id="update-cart" name="update" value="{{ 'cart.general.update' | t }}" /></div>
               <div class="buttoncont"><input type="submit" name="checkout" value="{{ 'cart.general.checkout' | t }}" /></div>
-              
+
               {% if additional_checkout_buttons %}
               <div class="additionalbutton">
                 {{ content_for_additional_checkout_buttons }}

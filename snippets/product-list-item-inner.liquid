@@ -19,7 +19,7 @@
 <div class="foot">
     <div class="price">
 		{% if product-list-item-inner.compare_at_price_max > product-list-item-inner.price %}<span class="reducedfrom">{{ product-list-item-inner.compare_at_price_max |  money }}</span>{% endif %}
-		<span class="amount">{% if product.price_varies %}<span class="from">{{ 'products.general.from' | t }} </span>{% endif %}{{ product-list-item-inner.price | times:1.20 | money }}</span>
+		<span class="amount">{% if product.price_varies %}<span class="from">{{ 'products.general.from' | t }} </span>{% endif %}{{ product-list-item-inner.price | money }}</span>
 	</div>
 
 	{% if settings.enable_quick_purchase == true and product-list-item-inner.variants.size == 1 and product-list-item-inner.available %}
