@@ -1,0 +1,241 @@
+{% if settings.heading_font != '' and settings.heading_font != 'Arial' and settings.heading_font != 'Georgia' %}
+@import url(https://fonts.googleapis.com/css?family={{ settings.heading_font | replace: ' ', '+' }}:400,700&amp;v2);
+{% endif %}
+{% if settings.body_font != '' and settings.body_font != 'Arial' and settings.body_font != 'Georgia' %}
+@import url(https://fonts.googleapis.com/css?family={{ settings.body_font | replace: ' ', '+' }}:400,700&amp;v2);
+{% endif %}
+
+body {
+  font-family:{% if settings.body_font != '' %}'{{ settings.body_font }}',{% endif %} Arial, serif;
+  background:{{ settings.back_solid_color }}{% if settings.back_image_enabled == true %} url('{{ settings.back_image_file | asset_url }}') {{ settings.back_repeat }}{% endif %};
+  color: #333;
+}
+
+h1,h2,h3,h4,h5,h6, #email label {
+  font-family: {{ settings.heading_font }}, sans-serif;
+}
+
+input,
+input[type=text],
+input[type=password],
+textarea {
+  font-size: 100%;
+  background-color: transparent;
+  color: inherit;
+  height:30px;
+  padding: 2px 10px;
+  vertical-align:middle;
+  border-width: 1px;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  border-radius:3px;
+}
+
+input[type="checkbox"] {
+  height:auto;
+  padding:auto;
+}
+
+{% if settings.custom_logo_enabled == true %}
+#header #tagline .title,
+#header #tagline .subtitle {
+    display:none;
+}
+#header #tagline {
+    height:150px; /* INCREASE THE HEIGHT OF THIS TO MATCH YOUR STORE LOGO */
+    background:url('{{ 'logo.png' | asset_url }}') no-repeat;
+    {% if settings.logo_pad_left == 'center' or settings.logo_pad_left == 'centre' %}
+    background-position: center top;
+    {% else %}
+    background-position: {{ settings.logo_pad_left }} top;
+    {% endif %}
+}
+{% endif %}
+
+#header,
+#container.slim #header,
+#footer,
+#container.slim #footer {
+    background:transparent;
+    color:{{ settings.para_1_color }};
+    line-height:1.45em;
+}
+
+#container.slim #main {
+  background:transparent;
+}
+
+#main {
+}
+
+#info-bar {
+    padding:6px 0 15px 0;
+}
+
+#header h1 .title {
+    font-size:120%;
+    color:{{ settings.header_1_color }};
+}
+
+#header h1 .subtitle {
+    margin-left:5px;
+}
+
+#container.slim h1 .subtitle {
+    display:block;
+    margin-top:5px;
+}
+
+#thumbs div {
+  border-color:#bbb;
+  margin-right: 10px;
+}
+
+#thumbs span {
+    color:#777;
+}
+
+#products {
+    border-color:#bbb;
+}
+
+#wallet {
+    background: transparent !important;
+}
+
+#wallet #cost {
+    font-size:280%;
+}
+
+#wallet #cost,
+#wallet #shipping_span,
+#wallet #tax_span {
+    color:#777;
+}
+
+#overview {
+    background:none;
+    border:0;
+}
+
+#addresses {
+    background: none repeat scroll 0 0 #FFFFFF!important;
+    height: auto;
+}
+#email {
+    background: none repeat scroll 0 0 #ffffff!important;
+}
+
+#buttons input {
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px;
+    border-radius: 5px; 
+    height: 45px;
+    border:1px solid #ccc;
+    cursor: pointer;
+    width:40%;
+}
+#cancel-purchase {
+    font-size:100%;
+}
+#buttons {
+    background: transparent;
+    border-bottom: none;
+    padding: 15px;
+}
+
+#buttons input[type="submit"] {
+    background: {{ settings.button_colour }};
+    height: auto;
+    width: auto;
+    padding: 10px 30px;
+    color: {{ settings.button_text_color }};
+    border: none;
+}
+
+#container {
+  font-size: 100%;
+}
+
+#cost, #order-num {
+  font-size:300%;
+  margin:0;
+  text-shadow: none;
+}
+
+#cost { margin-bottom: 20px; }
+
+#shipping_span { display: block; }
+
+#main, #footer {
+  margin: 40px 0;
+  padding:0 !important;
+  overflow:hidden;
+  background: transparent;
+}
+
+label {
+  font-weight: normal;
+}
+
+h3, .group h3, .pgroup h3, #email label {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  color: #333;
+}
+
+#header, #buttons, #content, #overview, #email, #addresses, #payment, .group {
+  background:none;
+  border:0;
+  padding:10px 0;
+}
+
+#email input {
+  font-size: 100%;
+}
+
+#buttons {
+  background: transparent;
+}
+
+#buttons input {
+  margin-right: 10px;
+  font-weight: normal;
+}
+
+.form td.lbl {
+  vertical-align: middle;
+  padding: 4px 4px 4px 0;
+}
+
+.form td input.short,
+.form td input {
+  width: 230px;
+}
+
+#thumbs span,
+#overview .hint,
+h1 span.subtitle,
+#steps {
+  color: inherit;
+  font-style: normal;
+}
+
+#steps {
+  font-size: 175%;
+}
+
+#thumbs span {
+  font-size: 100%;
+}
+
+#thumbs td {
+  font-size: 1em;
+}
+
+#thumbs h3 {
+  font-size: 1.1em;
+  line-height: 1.2em;
+  margin: 0;
+  border: none;
+}

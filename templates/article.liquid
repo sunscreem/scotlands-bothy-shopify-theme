@@ -1,0 +1,143 @@
+{% if settings.breadcrumbs_enabled == true or settings.social_links_page_show_tw == true or settings.social_links_page_show_fb == true or settings.social_links_page_show_goog == true %}
+<div id="breadcrumbs">
+    <span class="text">
+        {% if settings.breadcrumbs_enabled == true %}
+        <a href="/" title="{{ 'general.breadcrumbs.home' | t }}">{{ 'general.breadcrumbs.home' | t }}</a>
+        &raquo;
+        <a href="{{ blog.url }}">{{ blog.title }}</a>
+        &raquo;
+        <a href="{{ article.url }}">{{ article.title }}</a>
+        {% endif %}
+    </span>
+    {% include 'sociallinks' with article %}
+</div><!-- #breadcrumbs -->
+{% endif %}
+
+<div id="content" class="hasaside">
+    <div class="article-single">
+        <h3><a href="{{article.url}}">{{ article.title }}</a></h3>
+        <p class="article_detail">
+          {{ 'blogs.article.author_html' | t: author: article.author }}<br />
+          {% assign date = article.published_at | date: format: 'month_date_year' %}
+          {{ 'blogs.article.date_html' | t: date: date }}<br />
+          {% if blog.comments_enabled? and article.comments_count > 0 %}
+          <a href="{{article.url}}#comments"><em>{{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}</em></a>
+          {% endif %}
+        </p>
+		<div class="article-body pagecontent simple">
+          {{ article.content }}
+          {% if article.tags.size > 0 %}
+          <div class="articletags">
+            {{ 'blogs.tags.label' | t }} &raquo;
+            <ul>
+              {% for tag in article.tags %} 
+              <li>
+                <a href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}{% if forloop.last == false %},{% endif %}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}<div class="nextprev">
+          {% if blog.next_article %}
+          	{% capture next_html %}<span class="next">{{ 'blogs.article.next' | t }} &raquo;</span>{% endcapture %}
+          	{{ next_html | link_to: blog.next_article }}
+          {% endif %}
+          {% if blog.previous_article %}
+            {% capture previous_html %}<span class="previous">&laquo; {{ 'blogs.article.previous' | t }}</span>{% endcapture %}
+            {{ previous_html | link_to: blog.previous_article }}
+          {% endif %}
+        </div>
+		</div>
+        <div class="clearit"></div>
+    </div><!-- .article-single -->
+  
+    <div id="comments" class="comment-block">   
+      {% if blog.comments_enabled? %}
+      <h6>{{ 'blogs.comments.title' | t }}</h6>
+
+      <!-- List all comments -->
+      {% paginate article.comments by 10 %}  
+      <ul id="comment-list">
+        {% for comment in article.comments %}
+        <li>
+          <div class="comment-details">
+            {{ 'blogs.comments.author' | t: author: comment.author }}
+            {% assign date = comment.created_at | date: format: 'month_date_year' %}
+            {{ 'blogs.comments.date' | t: date: date }}
+          </div>
+          <div class="comment">
+            {{ comment.content }}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="pagination">
+        {{ paginate | default_pagination }}
+      </div>
+      {% endpaginate %}
+
+
+      <!-- Comment Form -->
+      <div class="user-form">
+        {% form article %}
+        <h6>{{ 'blogs.comments.form_title' | t }}</h6>
+
+        {% if blog.moderated? %}
+        <p class="hint">{{ 'blogs.comments.moderated' | t }}</p>
+        {% endif %}    
+
+        <!-- Check if a comment has been submitted in the last request, and if yes display an appropriate message -->
+        {% if form.posted_successfully? %}
+        {% if blog.moderated? %}
+        <div class="notice">{{ 'blogs.comments.posted_moderated' | t }}</div>
+        {% else %}
+        <div class="notice">{{ 'blogs.comments.posted_success' | t }}</div>
+        {% endif %}
+        {% endif %}
+
+        {% if form.errors %}
+        <div class="notice error">
+          {% for field in form.errors %}
+          <p>{{ field | capitalize }} {{ form.errors.messages[field] }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <dl class="clearfix">
+          <dt class="{% if form.errors contains 'author' %}error{% endif %}"><label for="comment_author">{{ 'blogs.comments.name' | t }}</label></dt>
+          <dd><input type="text" id="comment_author" name="comment[author]" size="31" value="{{form.author}}" class="{% if form.errors contains 'author' %}input-error{% endif %}" /></dd>
+          <div class="clearit"></div>
+          <dt class="{% if form.errors contains 'email' %}error{% endif %}"><label for="comment_email">{{ 'blogs.comments.email' | t }}</label></dt>
+          <dd><input type="text" id="comment_email" name="comment[email]" size="31" value="{{form.email}}" class="{% if form.errors contains 'email' %}input-error{% endif %}" /></dd>
+          <div class="clearit"></div>
+          <dt class="{% if form.errors contains 'body' %}error{% endif %}"><label for="comment_body">{{ 'blogs.comments.message' | t }}</label></dt>
+          <dd><textarea id="comment_body" name="comment[body]" cols="25" rows="5" class="{% if form.errors contains 'body' %}input-error{% endif %}">{{form.body}}</textarea></dd>
+        </dl>
+
+        <div class="buttoncont">
+          <input type="submit" value="{{ 'blogs.comments.submit' | t }}" id="comment-submit" />
+        </div>
+        {% endform %}
+      </div><!-- .user-form -->
+      <!-- END Comment Form -->
+      {% endif %}
+  </div><!-- .comment-block -->
+  
+  {% if settings.recommended_products_show_blog == true %}
+  <div class="productlist">
+    <h3>{{ 'general.featured_products.title_on_blog' | t }}</h3>
+    {% assign collection = collections[settings.recommended_products_coll_blog] %}
+    {% if collection.products.size > 0 %}
+    {% for product in collection.products limit: 3 %}
+    {% include 'product-list-item' %}
+    {% endfor %}
+    {% else %}
+    <p>{{ 'general.featured_products.setup_html' | t }}</p>
+    {% endif %}
+  </div><!-- .productlist -->
+  {% endif %}
+</div><!-- #content -->
+
+<div id="aside">
+  {% include 'sidebar' %}
+</div><!-- #aside -->

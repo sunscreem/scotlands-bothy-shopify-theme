@@ -1,0 +1,37 @@
+{% if settings.breadcrumbs_enabled == true or settings.social_links_page_show_tw == true or settings.social_links_page_show_fb == true or settings.social_links_page_show_goog == true %}
+<div id="breadcrumbs">
+    <span class="text">
+        {% if settings.breadcrumbs_enabled == true %}
+        <a href="/" title="{{ 'general.breadcrumbs.home' | t }}">{{ 'general.breadcrumbs.home' | t }}</a>
+        &raquo;
+    	<a href="{{ page.url }}">{{ page.title }}</a>
+        {% endif %}
+    </span>
+    {% include 'sociallinks' with page %}
+</div><!-- #breadcrumbs -->
+{% endif %}
+
+<div id="content" class="hasaside">
+    <div class="pagecontent">
+		<h1>{{ page.title }}</h1>
+		{{ page.content }}
+	</div><!-- .pagecontent -->
+    
+    {% if settings.recommended_products_show_page == true %}
+	<div class="productlist">
+		<h3>{{ 'general.featured_products.title_on_collection' | t }}</h3>
+        {% assign collection = collections[settings.recommended_products_coll_page] %}
+        {% if collection.products.size > 0 %}
+		{% for product in collection.products limit: 3 %}
+        {% include 'product-list-item' %}
+        {% endfor %}
+        {% else %}
+        <p>{{ 'general.featured_products.setup_html' | t }}</p>
+        {% endif %}
+	</div><!-- .productlist -->
+	{% endif %}
+</div><!-- #content -->
+
+<div id="aside">
+	{% include 'sidebar' %}
+</div><!-- #aside -->

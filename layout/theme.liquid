@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="google-site-verification" content="kf5HusFghj3S0-MBQcK2J0bIbHJWGQKmI-fEaJ8y47U" />
+<meta name="msvalidate.01" content="08CCB8004B0AB85022A49662B898CA1C" />
+  <!-- v3.3.4 -->
+  <title>
+    {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+  {% if page_description %}
+  <meta name="description" content="{{ page_description | escape }}" />
+  {% endif %}
+  <link rel="canonical" href="{{ canonical_url }}" />
+
+  <meta charset="utf-8" />
+  
+  {% if settings.responsive_en %}
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  {% endif %}
+
+  {% include 'opengraph' %}
+
+  <link rel="shortcut icon" type="image/x-icon" href="{{ 'favicon.ico' | asset_url }}">
+
+{{ 'styles.css' | asset_url | stylesheet_tag }}
+{{ 'nivo-slider.css' | asset_url | stylesheet_tag }}
+
+{% if settings.heading_font != '' and settings.heading_font != 'Arial' and settings.heading_font != 'Georgia' %}
+<link href='https://fonts.googleapis.com/css?family={{ settings.heading_font | replace: ' ', '+' }}:400,700&amp;v2' rel='stylesheet' type='text/css' />
+{% endif %}
+{% if settings.nav_font != '' and settings.nav_font != 'Arial' and settings.nav_font != 'Georgia' %}
+<link href='https://fonts.googleapis.com/css?family={{ settings.nav_font | replace: ' ', '+' }}:400,700&amp;v2' rel='stylesheet' type='text/css' />
+{% endif %}
+{% if settings.body_font != '' and settings.body_font != 'Arial' and settings.body_font != 'Georgia' %}
+<link href='https://fonts.googleapis.com/css?family={{ settings.body_font | replace: ' ', '+' }}:400,700&amp;v2' rel='stylesheet' type='text/css' />
+{% endif %}
+{% if settings.price_font != '' and settings.price_font != 'Arial' and settings.price_font != 'Georgia' %}
+<link href='https://fonts.googleapis.com/css?family={{ settings.price_font | replace: ' ', '+' }}:400,700&amp;v2' rel='stylesheet' type='text/css' />
+{% endif %}
+{% if settings.bread_font != '' and settings.bread_font != 'Arial' and settings.bread_font != 'Georgia' %}
+<link href='https://fonts.googleapis.com/css?family={{ settings.bread_font | replace: ' ', '+' }}:400,700&amp;v2' rel='stylesheet' type='text/css' />
+{% endif %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+window.jQuery || document.write("<script src='{{ 'jquery-1.8.1.min.js' | global_asset_url }}' type='text/javascript'>\x3C/script>");
+// ]]>
+</script>
+{{ 'jquery.nivo.slider.pack.js' | asset_url | script_tag }}
+{{ 'fancybox.js' | asset_url | script_tag }}
+{{ 'base.js' | asset_url | script_tag }}
+
+{% if template contains 'customers' %}
+    {{ "shopify_common.js" | shopify_asset_url | script_tag }}
+    {{ "customer_area.js"  | shopify_asset_url | script_tag }}
+{% endif %}
+{{ 'api.jquery.js' | shopify_asset_url | script_tag }}
+{{ 'option_selection.js' | shopify_asset_url | script_tag }}
+
+<script type="text/javascript">
+// <![CDATA[
+var mobileSnapWidth = 768; //Used all over
+
+//Override for ajax
+Shopify.money_format = {{ shop.money_format | json }};
+
+$(function($){
+    {% if settings.enable_ajax_add_to_cart == true %}
+    //AJAX add-to-cart
+    $('form[action*="/cart/add"]').submit(function(e) {
+      //Prevent normal submit
+      e.preventDefault();
+      //Disable the add button until this process is over
+      $(e.target).find('.addbutton').attr('disabled', true).addClass('disabled');
+      //Add the item to your cart
+      Shopify.addItemFromForm($(this).attr('id'));
+    });
+    
+    //Function to display a popup message after adding to cart
+    $.extend({
+      shopAddPopup : function(options) {
+        var settings = $.extend({
+          title: '',
+          message: '',
+          $positionElement: null
+        }, options);
+        var $popup = $('<div>').html(settings.message).addClass('addToCartPopup').hide();
+        var $otherPopups = $('.addToCartPopup');
+        if($otherPopups.length > 0) {
+          var toppest = 0;
+          for(var i=0; i<$otherPopups.length; i++) {
+            var thisTop = parseInt($($otherPopups[i]).css('top').replace("px", ""));
+            if(thisTop > toppest) {
+              toppest = thisTop;
+            }
+          }
+          $popup.css('top', toppest + 55);
+        }
+        $popup.appendTo('body').fadeIn(500).each(function(){
+          $(this).css('margin-left', -$(this).outerWidth()/2);
+        }).delay(3000).fadeOut(1000, function(){ $(this).remove(); });
+      }
+    });
+     //Override
+     Shopify.onItemAdded = function(line_item) {
+       //Make button usable again
+       var $addedButton = $('form .addbutton.disabled');
+       $addedButton.attr('disabled', false).removeClass('disabled');
+       //Adding to cart successful, update cart
+       Shopify.getCart();
+       //Show friendly popup
+       $.shopAddPopup({title: '', message: line_item.title + ' ' + {{ 'products.general.added_to_cart' | t | json }}, positionElement: $addedButton});
+     }
+     
+     //Override
+     Shopify.onError = function(XMLHttpRequest, textStatus) {
+       //Fetch button that triggered this and make it usable again
+       var $addedButton = $('form .addbutton.disabled');
+       $addedButton.attr('disabled', false).removeClass('disabled');
+       //Display error message
+       var data = eval('(' + XMLHttpRequest.responseText + ')');
+       if (!!data.message) {
+         $.shopAddPopup({title: data.message, message: data.description, positionElement: $addedButton});
+       } else {
+         $.shopAddPopup({message: Shopify.fullMessagesFromErrors(data).join('; '), positionElement: $addedButton});
+       }  
+     };
+     
+     //Override
+     Shopify.onCartUpdate = function(cart) {
+       $('.cartitems .count').html(cart.item_count);
+       //Replace the cart summary in sidebar
+       if($('#aside .cartsummary').length > 0) {
+         //Fetch current page again with json
+         $.get(window.location.toString(), function(data){
+           $('#aside').replaceWith($($.parseHTML('<div>'+data+'</div>')).find('#aside'));
+         });
+       }
+     }
+     {% endif %}
+});
+// ]]>
+</script>
+
+{% if settings.bg_col_show and settings.bg_col_trans %}
+<style type="text/css">
+#wrap {
+    {% assign hex2rgb_hex = settings.back_solid_color %}
+    {% include 'hex2rgb' %}
+    background: rgba({{ hex2rgb_r }},{{ hex2rgb_g }},{{ hex2rgb_b }}, {{ settings.bg_col_trans_amt }});
+}
+</style>
+{% endif %}
+
+{% comment %} Rounded corners for all {% endcomment %}
+<!--[if lt IE 10]>
+{{ 'PIE.js' | asset_url | script_tag }}
+<script>
+$(function() {
+if (window.PIE) {
+$('.social-icons a').each(function() {
+PIE.attach(this);
+});
+}
+});
+</script>
+<![endif]-->
+  
+{{ content_for_header }}
+</head>
+
+<body id="page-{{ template }}">
+
+  {% capture login_html %}
+  {% if shop.customer_accounts_enabled %}
+  <span class="custlogin">
+    {% if customer  %}
+    <a href="/account">{{ 'layout.customer.welcome' | t: name: customer.first_name }}</a> | {{ 'layout.customer.logout' | t | customer_logout_link }}
+    {% else %}
+    {{ 'layout.customer.login' | t | customer_login_link }}
+    {% if settings.show_register_link %}
+    | {{ 'layout.customer.register' | t | customer_register_link }}
+    {% endif %}
+    {% endif %}
+  </span>
+  {% endif %}
+  {% endcapture %}
+  
+  <div id="wrapthewrap">
+    <div id="wrap" class="clearfix">
+      <div id="mobile-header">
+        <button id="toggle-mobile-menu">{{ 'layout.mobile_header.menu_button' | t }}<span class="s1"></span><span class="s2"></span><span class="s3"></span></button>
+        {{ login_html }}
+        <a class="cartitems" href="/cart">Basket (<span class="count">{{ cart.item_count }}</span>)</a>
+      </div>
+      <a href="#" class="cover-all toggle-mobile-menu"></a>
+        <div id="header">
+            <div id="shoplogo">
+                {% if settings.custom_logo_enabled == true %}
+                    <a href="/" title="{{ shop.name }}"><img src="{{ 'logo9.png' | asset_url }}" alt="{{ shop.name }}" /></a>
+                {% else %}
+                    <h1><a href="/" title="{{ shop.name }}">{{ shop.name }}</a></h1>
+                {% endif %}
+                {% if settings.place_searchcart_in_header == true %}
+                <div id="cartwrapper">
+            		<div class="search">
+                		<form action="/search" method="get">
+            				<input type="text" name="q" id="q" value="" placeholder="{{ 'layout.header.search' | t }}" />
+            			</form>
+            		</div><!-- .search -->
+                    <div id="cart">
+                      <div class="inner">
+                        <a class="cartitems" href="/cart">Basket (<span class="count">{{ cart.item_count }}</span>)</a>
+                      </div>
+            		</div><!-- #cart -->
+                </div><!-- #cartwrapper -->
+                {% endif %}
+              
+              {{ login_html }}
+            </div><!-- #shoplogo -->
+          
+          	{% if settings.soc_in_head %}{% include 'social-icons' %}{% endif %}
+          
+        	<div id="navblock" class="clearfix">
+                {% if settings.place_searchcart_in_header == false %}
+                <div class="searchcartwrap">
+                  <div class="search">
+                    <form action="/search" method="get">
+                      <input type="text" name="q" id="q" value="" placeholder="{{ 'layout.header.search' | t }}" />
+                    </form>
+                  </div><!-- .search -->
+                  <div id="cart">
+                    <div class="inner">
+                      <a class="cartitems" href="/cart">{{ 'layout.header.cart' | t }} (<span class="count">{{ cart.item_count }}</span>)</a>
+                    </div>
+                  </div><!-- #cart -->
+                </div>
+                {% endif %}
+        		<ul class="nav{% if settings.place_searchcart_in_header == true %} fullwidthnav{% endif %}">
+                    {% assign firstliclass = ' class="first"' %}
+                    {% for link in linklists.main-menu.links %}
+                		<li{{ firstliclass }}>
+                            {% assign firstliclass = '' %}
+                            {% comment %} If catalog nav, show collections underneath {% endcomment %}
+                            {% if link.title == settings.nav_item_to_show_collections_under %}
+                                <a class="hasdropdown" href="{{ link.url }}">{{ link.title }}</a>
+                          		<span class="rq">&raquo;</span> <i class="notch"></i>
+                                <ul>
+                                {% for collection in collections %}
+                                    {% assign handlefirst = collection.handle | split: '-' | first %}
+                                    {% if collection.handle != 'all' and handlefirst != 'frontpage' %}
+                                    <li>{{ collection.title | link_to: collection.url }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                                </ul>
+                                
+                                {% comment %}Show Vendor list right after collections{% endcomment %}
+                                {% if shop.vendors.size > 0 and settings.vendor_list_enabled == true %}
+                                    </li>
+                                    <li>
+                                      <a class="hasdropdown">{{ settings.text_vendor }}</a>
+                                      <span class="rq">&raquo;</span> <i class="notch"></i>
+                                      <ul>
+                                        {% for vendor in shop.vendors %}
+                                        <li>{{ vendor | link_to_vendor }}</li>
+                                        {% endfor %}
+                                      </ul>
+                                {% endif %}
+                            {% else %}
+                                {% comment %} Get any lists named the same as the parent and treat as subnav {% endcomment %}
+                    			{% capture child_list_handle %}{{ link.title | handle }}{% endcapture %}
+                				{% if linklists[child_list_handle] and linklists[child_list_handle].links.size > 0 %}
+                                    <a class="hasdropdown" href="{{ link.url }}">{{ link.title }}</a>
+                                    <span class="rq">&raquo;</span> <i class="notch"></i>
+                    				<ul>
+                                      {% for l in linklists[child_list_handle].links %}
+                                      <li>
+                                        {% assign innerchild_list_handle = l.title | handle %}
+                                        {% if linklists[innerchild_list_handle] and linklists[innerchild_list_handle].links.size > 0 %}
+                                        <a class="hasdropdown" href="{{ l.url }}">{{ l.title }}</a>
+                                        <ul>
+                                          {% for tl in linklists[innerchild_list_handle].links %}
+                                          <li><a href="{{ tl.url }}">{{ tl.title }}</a></li>
+                                          {% endfor %}
+                                        </ul>
+                                        {% else %}
+                                        <a href="{{ l.url }}">{{ l.title }}</a>
+                                        {% endif %}
+                                      </li>
+                                      {% endfor %}
+                    				</ul>
+                                {% else %}
+                                    <a href="{{ link.url }}">{{ link.title }}</a>
+                				{% endif %}
+                            {% endif %}
+            			</li>
+        			{% endfor %}
+        		</ul>
+        	</div><!-- #navblock -->
+        </div><!-- #header -->
+    
+        
+        {% if template == 'list-collections' %}
+            {% include 'collection-listing' %}
+        {% else %}
+        {{ content_for_layout }}
+        {% endif %}
+        
+
+      <div id="footer">
+          <div class="column1 contacts">
+            Contact Us<br>
+            <a href="+441224658077" class="tel">01224 658077</a><br>
+            <!-- <strong style="text-decoration: underline;">Open 7 Days</strong><br>
+Mon, Tues, Wed, Fri 9am to 5pm<br>
+Thurs 9am to 7pm<br>
+Sun 10am to 4pm<br> -->
+            {{ settings.opening_hours | newline_to_br }}
+            <br>
+            <!--
+			Monday - Saturday<br>
+            9am - 5pm (7pm Thurday)<br>
+            Sunday<br>
+            10am - 4pm<br> -->
+            <span class="email">Email: <a href="mailto:scotlandsbothy@yahoo.co.uk">scotlandsbothy@yahoo.co.uk</a></span>
+            </div>
+          <div class="column2 links"><ul>
+                {% for link in linklists.footer.links %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                {% endfor %}
+              </ul></div>
+          <div class="column3 cardsandcopyright">
+              <div class="credits">                
+                    <div class="cards">
+                      {% if settings.payment_2co_enabled == true %}
+                      <span class="2co">2Checkout</span>
+                      {% endif %}
+                      {% if settings.payment_cirrus_enabled == true %}
+                      <span class="cirrus">Cirrus</span>
+                      {% endif %}
+                      {% if settings.payment_delta_enabled == true %}
+                      <span class="delta">Delta</span>
+                      {% endif %}
+                      {% if settings.payment_discover_enabled == true %}
+                      <span class="discover">Discover</span>
+                      {% endif %}
+                      {% if settings.payment_google_enabled == true %}
+                      <span class="google">Google Checkout</span>
+                      {% endif %}
+                      {% if settings.payment_maestro_enabled == true %}
+                      <span class="maestro">Maestro</span>
+                      {% endif %}
+                      {% if settings.payment_mastercard_enabled == true %}
+                      <span class="mastercard">Mastercard</span>
+                      {% endif %}
+                      {% if settings.payment_moneybookers_enabled == true %}
+                      <span class="moneybook">Moneybookers</span>
+                      {% endif %}
+                      {% if settings.payment_sagepay_enabled == true %}
+                      <span class="sage">SagePay</span>
+                      {% endif %}
+                      {% if settings.payment_solo_enabled == true %}
+                      <span class="solo">Solo</span>
+                      {% endif %}
+                      {% if settings.payment_switch_enabled == true %}
+                      <span class="switch">Switch</span>
+                      {% endif %}
+                      {% if settings.payment_visa_enabled == true %}
+                      <span class="visa">Visa</span>
+                      {% endif %}
+                      {% if settings.payment_visaelectron_enabled == true %}
+                      <span class="electron">Visa Electron</span>
+                      {% endif %}
+                      {% if settings.payment_jcb_enabled == true %}
+                      <span class="jcb">JCB</span>
+                      {% endif %}
+                      {% if settings.payment_diners_enabled == true %}
+                      <span class="diners">Diners Club</span>
+                      {% endif %}
+                      {% if settings.payment_amex_enabled == true %}
+                      <span class="amex">American Express</span>
+                      {% endif %}
+                      {% if settings.payment_paypal_enabled == true %}
+                      <span class="paypal">PayPal</span>
+                      {% endif %}
+                    </div><!-- .cards -->
+                  </div>
+                  <div class="address"><a href="https://www.google.co.uk/maps/place/Scotland's+Bothy/@57.151533,-2.103032,17z/data=!3m1!4b1!4m2!3m1!1s0x48840e180ce01367:0x1de33fb54c842ab3!6m1!1e1">250/252 George Street,<br>Aberdeen, AB25 1HN, UK</a></div>
+                  <div class="copy">&copy; {{ "now" | date: "%Y" }} <a href="/">{{ shop.name }}</a></div>
+                  {% include 'social-icons' %}
+                  </div>
+      </div>  
+
+    </div><!-- #wrap -->
+  </div><!-- #wrapthewrap -->
+  
+  <!-- Tabs -->
+  <script>(function(a){a.fn.willtabs=function(c){var b={
+  tabTextColour:"#333",
+  tabBG:"#eee",
+  activeTabTextColour:"#333",
+  activeTabBG:"#fff",
+  borderStyle:"1px solid #999",tabTopMargin:"20px",contentPadding:"10px 0"};a.extend(b,c);a(this).each(function(){if(a(this).hasClass(".willtab-container")){var d=a(this)}else{var d=a(this).find(".willtab-container")}d.each(function(){var e=a(this).children(".willtab-tabs");var f=a(this).children(".willtab-content");e.css({margin:b.tabTopMargin+" 0 0 0",display:"block","border-bottom":b.borderStyle}).bind("checkstyle",function(){var g=a(this).find("li");g.find("a").css({"float":"left","border-top":b.borderStyle,"border-right":b.borderStyle,"border-left":b.borderStyle,background:b.tabBG,padding:"5px 15px",margin:"2px 0 0","text-decoration":"none",color:b.tabTextColour}).each(function(h){if(h>0){a(this).css("margin-left","-1px")}});g.filter(".active").find("a").css({color:b.activeTabTextColour,background:b.activeTabBG,"padding-top":"7px","margin-top":"0"})});e.find("li").css({"float":"left","list-style":"none",margin:"0"});a("<li />").css({"list-style":"none",clear:"both",height:0}).appendTo(e);f.css({clear:"both",padding:b.contentPadding});e.find("a[data-title]").each(function(){a(this).html(a(this).attr("data-title"))});e.find("a").bind("click",function(){f.children(".tab-"+a(this).attr("data-tab")).show().siblings().hide();e.children(".active").removeClass("active");a(this).parent().addClass("active");e.trigger("checkstyle");return false});e.find("a:first").trigger("click")})})};a(function(){a("body").willtabs()})}(jQuery));</script>
+
+</body>
+</html>

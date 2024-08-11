@@ -1,0 +1,69 @@
+{% if settings.breadcrumbs_enabled == true or settings.social_links_page_show_tw == true or settings.social_links_page_show_fb == true or settings.social_links_page_show_goog == true %}
+<div id="breadcrumbs">
+    <span class="text">
+        {% if settings.breadcrumbs_enabled == true %}
+        <a href="/" title="{{ 'general.breadcrumbs.home' | t }}">{{ 'general.breadcrumbs.home' | t }}</a>
+        &raquo;
+        <a href="{{ blog.url }}">{{ blog.title }}</a>
+        {% if current_tags %}
+            {% for tag in current_tags %}
+                &raquo; {{ tag | link_to_tag: tag }}
+            {% endfor %}
+        {% endif %}
+        {% endif %}
+    </span>
+    {% include 'sociallinks' with blog %}
+</div><!-- #breadcrumbs -->
+{% endif %}
+
+<div id="content" class="hasaside">
+    <!--<h1>{{blog.title}}</h1>-->
+    <div class="articles">
+		{% paginate blog.articles by 10 %}
+
+		{% for article in blog.articles  %}
+		<div class="article clearfix">
+          <h3>
+            <a href="{{article.url}}">{{ article.title }}</a>
+          </h3>
+          <p class="article_detail">
+            {{ 'blogs.article.author_html' | t: author: article.author }}<br />
+            {% assign date = article.published_at | date: format: 'month_date_year' %}
+            {{ 'blogs.article.date_html' | t: date: date }}<br />
+            {% if blog.comments_enabled? and article.comments_count > 0 %}
+            <a href="{{article.url}}#comments"><em>{{ 'blogs.comments.comments_with_count' | t: count: article.comments_count }}</em></a>
+            {% endif %}
+          </p>
+          <div class="article-body pagecontent simple">
+            {{ article.excerpt_or_content }}
+
+            {% if article.excerpt != blank %}
+            <p class="read-more">{{ 'blogs.article.read_more_html' | t | append: ' &raquo;' | link_to: article.url }}</p>
+            {% endif %}
+          </div>
+		</div><!-- .article -->
+		{% endfor %}
+		
+		<div class="pagination">
+			{{ paginate | default_pagination }}
+		</div>
+		{% endpaginate %}
+	</div><!-- .articles -->
+    
+    {% if settings.recommended_products_show_blog == true %}
+    <div class="productlist">
+		<h3>{{ 'general.featured_products.title_on_blog' | t }}</h3>
+        {% assign collection = collections[settings.recommended_products_coll_blog] %}
+        {% if collection.products.size > 0 %}
+		{% for product in collection.products limit: 3 %}
+        {% include 'product-list-item' %}
+        {% endfor %}
+        {% else %}
+        <p>{{ 'general.featured_products.setup_html' | t }}</p>
+        {% endif %}
+	</div><!-- .productlist -->
+	{% endif %}
+</div><!-- #content -->
+<div id="aside">
+    {% include 'sidebar' %}
+</div><!-- #aside -->

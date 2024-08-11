@@ -1,0 +1,134 @@
+<div id="content">
+    {% if settings.show_homepage_slideshow == true %}
+    <div id="banners" class="clearfix">
+        <div class="slidecontainer">
+        	<div class="slides">
+              
+                {% if settings.slide_1_url != '' %}<a href="{{ settings.slide_1_url }}"{% if settings.slide_1_newtab == true %} target="_blank"{% endif %}>{% endif %}
+                <img src="{{ 'slide_1_image.jpg' | asset_url }}" alt="{{ settings.slide_1_alt }}" />
+                {% if settings.slide_1_url != '' %}</a>{% endif %}
+                {% if settings.slide_count == '2' or settings.slide_count == '3' or settings.slide_count == '4' or settings.slide_count == '5' %}
+                    {% if settings.slide_2_url != '' %}<a href="{{ settings.slide_2_url }}"{% if settings.slide_2_newtab == true %} target="_blank"{% endif %}>{% endif %}
+                    <img src="{{ 'slide_2_image.jpg' | asset_url }}" alt="{{ settings.slide_2_alt }}" />
+                    {% if settings.slide_2_url != '' %}</a>{% endif %}
+                    {% if settings.slide_count == '3' or settings.slide_count == '4' or settings.slide_count == '5' %}
+                        {% if settings.slide_3_url != '' %}<a href="{{ settings.slide_3_url }}"{% if settings.slide_3_newtab == true %} target="_blank"{% endif %}>{% endif %}
+                        <img src="{{ 'slide_3_image.jpg' | asset_url }}" alt="{{ settings.slide_3_alt }}" />
+                        {% if settings.slide_3_url != '' %}</a>{% endif %}
+                        {% if settings.slide_count == '4' or settings.slide_count == '5' %}
+                            {% if settings.slide_4_url != '' %}<a href="{{ settings.slide_4_url }}"{% if settings.slide_4_newtab == true %} target="_blank"{% endif %}>{% endif %}
+                            <img src="{{ 'slide_4_image.jpg' | asset_url }}" alt="{{ settings.slide_4_alt }}" />
+                            {% if settings.slide_4_url != '' %}</a>{% endif %}
+                            {% if settings.slide_count == '5' %}
+                                {% if settings.slide_5_url != '' %}<a href="{{ settings.slide_5_url }}"{% if settings.slide_5_newtab == true %} target="_blank"{% endif %}>{% endif %}
+                                <img src="{{ 'slide_5_image.jpg' | asset_url }}" alt="{{ settings.slide_5_alt }}" />
+                                {% if settings.slide_5_url != '' %}</a>{% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div><!-- .slides -->
+        </div><!-- .slidecontainer -->
+      	{% unless settings.slides_fullwidth %}
+		<div class="imagelink">
+            {% if settings.banner_right_image_url != '' %}
+            <a href="{{ settings.banner_right_image_url }}">
+            {% endif %}
+                <img src="{{ 'banner_right_image.jpg' | asset_url }}" alt="{% if settings.banner_right_image_alt != '' %}{{ settings.banner_right_image_alt }}{% endif %}" />
+            {% if settings.banner_right_image_url != '' %}
+            </a>
+            {% endif %}
+        </div><!-- .imagelink -->
+		{% endunless %}
+	</div><!-- #banners -->
+    <script type="text/javascript">
+        // <![CDATA[
+        $(function(){
+          if($('#content .slides img').length > 1) {
+            $('#content .slides').nivoSlider({
+              effect: '{{ settings.slider_effect }}',
+              pauseTime: {{ settings.slide_delay }},
+              controlNav: false
+            });
+          }
+        });
+        // ]]>
+    </script>
+    {% endif %}
+
+  {% unless settings.home_fullprod %}
+  <div class="collayout">
+    <div class="col-3-right">
+      {% endunless %}
+      
+      {% if settings.show_homepage_mid_text == true %}
+      <div class="hometext">
+        {% if settings.home_page_mid_content_title != empty %}
+        <h2>{{ pages[settings.home_page_mid_content_title].title }}</h2>
+        {{ pages[settings.home_page_mid_content_title].content }}
+        {% else %}
+        {{ 'homepage.default_welcome_html' | t }}
+        {% endif %}
+      </div><!-- .hometext -->
+      {% endif %}
+      
+      {% if settings.home_fullprod %}
+      {% assign prod_row_count = 4 %}
+      {% else %}
+      {% assign prod_row_count = 3 %}
+      {% endif %}
+      
+      {% if settings.recommended_products_show_1 == true %}
+      <div class="productlist top clearfix">
+        {% if settings.recommended_products_title_1 == blank %}
+        <h3>{{ 'general.featured_products.default_home_title_1' | t }}</h3>
+        {% else %}
+        <h3>{{ settings.recommended_products_title_1 }}</h3>
+        {% endif %}
+        {% assign collection = collections[settings.recommended_products_coll_1] %}
+        {% if collection.products.size > 0 %}
+        {% for product in collection.products limit: prod_row_count %}
+        {% capture prodclass %}{% if settings.home_fullprod %}{% cycle 'list1': '','','',' last' %}{% else %}{% cycle 'list1': '','',' last' %}{% endif %}{% endcapture %}
+        <div class="product {{ prodclass }}{% cycle 'list1a': '', ' alt' %}">
+          {% include 'product-list-item-inner' with product %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>{{ 'general.featured_products.setup_html' | t }}</p>
+        {% endif %}
+      </div><!-- .productlist -->
+      {% endif %}
+      
+      {% if settings.recommended_products_show_2 == true %}
+      <div class="productlist">
+        {% if settings.recommended_products_title_2 == blank %}
+        <h3>{{ 'general.featured_products.default_home_title_2' | t }}</h3>
+        {% else %}
+        <h3>{{ settings.recommended_products_title_2 }}</h3>
+        {% endif %}
+        {% assign collection = collections[settings.recommended_products_coll_2] %}
+        {% if collection.products.size > 0 %}
+        {% for product in collection.products limit: prod_row_count %}
+        {% capture prodclass %}{% if settings.home_fullprod %}{% cycle 'list2': '','','',' last' %}{% else %}{% cycle 'list2': '','',' last' %}{% endif %}{% endcapture %}
+        <div class="product {{ prodclass }}{% cycle 'list2a': '', ' alt' %}">
+          {% include 'product-list-item-inner' with product %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>{{ 'general.featured_products.setup_html' | t }}</p>
+        {% endif %}
+      </div><!-- .productlist -->
+      {% endif %}
+      
+      {% unless settings.home_fullprod %}
+    </div><!-- .col-3-right -->
+    <div class="col-1-left">
+      {% if settings.homeside_slot1_snippet != '' %}{% include settings.homeside_slot1_snippet %}{% endif %}
+      {% if settings.homeside_slot2_snippet != '' %}{% include settings.homeside_slot2_snippet %}{% endif %}
+      {% if settings.homeside_slot3_snippet != '' %}{% include settings.homeside_slot3_snippet %}{% endif %}
+      {% if settings.homeside_slot4_snippet != '' %}{% include settings.homeside_slot4_snippet %}{% endif %}
+      {% if settings.homeside_slot5_snippet != '' %}{% include settings.homeside_slot5_snippet %}{% endif %}
+    </div><!-- .col-1-left -->
+  </div><!-- .collayout -->
+  {% endunless %}
+</div><!-- #content -->

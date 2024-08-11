@@ -1,0 +1,71 @@
+{% if settings.breadcrumbs_enabled == true or settings.social_links_page_show_tw == true or settings.social_links_page_show_fb == true or settings.social_links_page_show_goog == true %}
+<div id="breadcrumbs">
+    <span class="text">
+        {% if settings.breadcrumbs_enabled == true %}
+        <a href="/" title="{{ 'general.breadcrumbs.home' | t }}">{{ 'general.breadcrumbs.home' | t }}</a>
+        &raquo;
+    	<a href="{{ page.url }}">{{ page.title }}</a>
+        {% endif %}
+    </span>
+    {% include 'sociallinks' with page %}
+</div><!-- #breadcrumbs -->
+{% endif %}
+
+<div id="content" class="hasaside">
+    <div class="pagecontent">
+		<h1>{{ page.title }}</h1>
+		{{ page.content }}
+    	
+        {% form 'contact' %}
+            {% if form.posted_successfully? %}
+                <p class="success-msg">{{ 'contact.form.post_success' | t }}</p>
+            {% endif %}
+            <div class="user-form">
+                {% if form.errors %}
+              		{% assign message_label = 'contact.form.message' | t %}
+                    <ul>
+                    {% for field in form.errors %}
+                        <li class="error">{{ field | replace: 'body',message_label | capitalize }} - {{ form.errors.messages[field] }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <dl class="clearfix">
+                    <dt class="{% if form.errors contains 'name' %}error{% endif %}"><label for="comment_name">{{ 'contact.form.name' | t }}</label></dt>
+                    <dd><input type="text" id="comment_name" name="contact[name]" size="31" value="{{form.name}}" class="{% if form.errors contains 'name' %}input-error{% endif %}" /></dd>
+                    <div class="clearit"></div>
+                    
+                    <dt class="{% if form.errors contains 'email' %}error{% endif %}"><label for="comment_email">{{ 'contact.form.email' | t }}</label></dt>
+                    <dd><input type="text" id="comment_email" name="contact[email]" size="31" value="{{form.email}}" class="{% if form.errors contains 'email' %}input-error{% endif %}" /></dd>
+                    <div class="clearit"></div>
+                    
+                    <dt class="{% if form.errors contains 'body' %}error{% endif %}"><label for="comment_body">{{ 'contact.form.message' | t }}</label></dt>
+                    <dd>
+                        <textarea id="comment_body" name="contact[body]" class="{% if form.errors contains 'body' %}input-error{% endif %}">{{form.body}}</textarea>
+                    </dd>
+                    <div class="clearit"></div>
+                </dl>
+            </div><!-- .user-form -->
+            <div class="buttoncont">
+                <input type="submit" value="{{ 'contact.form.send' | t }}" id="comment-submit" />
+            </div>
+        {% endform %}
+    </div><!-- .pagecontent -->
+    
+    {% if settings.recommended_products_show_page == true %}
+	<div class="productlist">
+		<h3>{{ 'general.featured_products.title_on_collection' | t }}</h3>
+        {% assign collection = collections[settings.recommended_products_coll_page] %}
+        {% if collection.products.size > 0 %}
+		{% for product in collection.products limit: 3 %}
+        {% include 'product-list-item' %}
+        {% endfor %}
+        {% else %}
+        <p>{{ 'general.featured_products.setup_html' | t }}</p>
+        {% endif %}
+	</div><!-- .productlist -->
+	{% endif %}
+</div><!-- #content -->
+<div id="aside">
+	{% include 'sidebar' %}
+</div><!-- #aside -->
