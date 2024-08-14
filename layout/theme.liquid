@@ -13,7 +13,7 @@
   <link rel="canonical" href="{{ canonical_url }}" />
 
   <meta charset="utf-8" />
-  
+
   {% if settings.responsive_en %}
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
@@ -22,7 +22,8 @@
 
   {% include 'opengraph' %}
 
-  <link rel="shortcut icon" type="image/x-icon" href="{{ 'favicon.ico' | asset_url }}">
+  {% include 'favicons' %}
+
 
 {{ 'styles.css' | asset_url | stylesheet_tag }}
 {{ 'nivo-slider.css' | asset_url | stylesheet_tag }}
@@ -78,7 +79,7 @@ $(function($){
       //Add the item to your cart
       Shopify.addItemFromForm($(this).attr('id'));
     });
-    
+
     //Function to display a popup message after adding to cart
     $.extend({
       shopAddPopup : function(options) {
@@ -114,7 +115,7 @@ $(function($){
        //Show friendly popup
        $.shopAddPopup({title: '', message: line_item.title + ' ' + {{ 'products.general.added_to_cart' | t | json }}, positionElement: $addedButton});
      }
-     
+
      //Override
      Shopify.onError = function(XMLHttpRequest, textStatus) {
        //Fetch button that triggered this and make it usable again
@@ -126,9 +127,9 @@ $(function($){
          $.shopAddPopup({title: data.message, message: data.description, positionElement: $addedButton});
        } else {
          $.shopAddPopup({message: Shopify.fullMessagesFromErrors(data).join('; '), positionElement: $addedButton});
-       }  
+       }
      };
-     
+
      //Override
      Shopify.onCartUpdate = function(cart) {
        $('.cartitems .count').html(cart.item_count);
@@ -168,7 +169,7 @@ PIE.attach(this);
 });
 </script>
 <![endif]-->
-  
+
 {{ content_for_header }}
 </head>
 
@@ -188,7 +189,7 @@ PIE.attach(this);
   </span>
   {% endif %}
   {% endcapture %}
-  
+
   <div id="wrapthewrap">
     <div id="wrap" class="clearfix">
       <div id="mobile-header">
@@ -218,12 +219,12 @@ PIE.attach(this);
             		</div><!-- #cart -->
                 </div><!-- #cartwrapper -->
                 {% endif %}
-              
+
               {{ login_html }}
             </div><!-- #shoplogo -->
-          
+
           	{% if settings.soc_in_head %}{% include 'social-icons' %}{% endif %}
-          
+
         	<div id="navblock" class="clearfix">
                 {% if settings.place_searchcart_in_header == false %}
                 <div class="searchcartwrap">
@@ -256,7 +257,7 @@ PIE.attach(this);
                                     {% endif %}
                                 {% endfor %}
                                 </ul>
-                                
+
                                 {% comment %}Show Vendor list right after collections{% endcomment %}
                                 {% if shop.vendors.size > 0 and settings.vendor_list_enabled == true %}
                                     </li>
@@ -301,14 +302,14 @@ PIE.attach(this);
         		</ul>
         	</div><!-- #navblock -->
         </div><!-- #header -->
-    
-        
+
+
         {% if template == 'list-collections' %}
             {% include 'collection-listing' %}
         {% else %}
         {{ content_for_layout }}
         {% endif %}
-        
+
 
       <div id="footer">
           <div class="column1 contacts">
@@ -333,7 +334,7 @@ Sun 10am to 4pm<br> -->
                 {% endfor %}
               </ul></div>
           <div class="column3 cardsandcopyright">
-              <div class="credits">                
+              <div class="credits">
                     <div class="cards">
                       {% if settings.payment_2co_enabled == true %}
                       <span class="2co">2Checkout</span>
@@ -392,11 +393,11 @@ Sun 10am to 4pm<br> -->
                   <div class="copy">&copy; {{ "now" | date: "%Y" }} <a href="/">{{ shop.name }}</a></div>
                   {% include 'social-icons' %}
                   </div>
-      </div>  
+      </div>
 
     </div><!-- #wrap -->
   </div><!-- #wrapthewrap -->
-  
+
   <!-- Tabs -->
   <script>(function(a){a.fn.willtabs=function(c){var b={
   tabTextColour:"#333",
